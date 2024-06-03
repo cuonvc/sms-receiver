@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         // useMaterial3: false,
       ),
-      home: const MyHomePage(title: 'Flutter SMS Receiver'),
+      home: const MyHomePage(title: 'SMS Receiver App'),
     );
   }
 }
@@ -40,11 +40,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   final _plugin = Readsms();
+  static const imagePathPending = "image/pending.gif";
+  static const imagePathDeposit = "image/wallet_deposit.png";
+
   String content = '';
   String sender = '';
   String time = '';
-  String pendingText = 'Đang đợi ting ting từ người ấy...';
-  String imagePath = 'image/pepe.png';
+  String pendingText = 'Chưa có yêu cầu chuyển khoản nào...';
+  String imagePath = imagePathPending;
 
   @override
   void initState() {
@@ -54,11 +57,11 @@ class _MyHomePageState extends State<MyHomePage> {
         _plugin.read();
         _plugin.smsStream.listen((event) async {
           setState(() {
+            pendingText = 'Khách hàng nạp tiền';
             content = 'Nội dung: ' + event.body;
-            sender = 'Người gửi: ' + event.sender;
-            time = 'Thời gian: ' + event.timeReceived.toString();
-            pendingText = 'Có tin nhắn mới...';
-            imagePath = 'image/3nRK.gif';
+            sender = 'Thông báo từ: ' + event.sender;
+            time = 'Vào lúc: ' + event.timeReceived.toString();
+            imagePath = imagePathDeposit;
           });
 
           //post message data to the HAU-Ecommerce server
@@ -103,6 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         flexibleSpace: Center(
           child: Text(
             widget.title,
@@ -110,28 +114,35 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image(
-              image: AssetImage(imagePath),
-              width: 150,
-              height: 200,
-            ),
-            Padding(padding: EdgeInsets.only(top: 20)),
-            Text(
-              pendingText,
-              style: TextStyle(
-                fontSize: 18
+      body: Container(
+        color: Colors.white,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image(
+                image: AssetImage(imagePath),
+                width: imagePath == imagePathPending ? 300 : 200,
+                height: imagePath == imagePathDeposit ? 250 : 150,
               ),
-            ),
-            Text(sender, style: TextStyle(fontSize: 16),),
-            Text(content, style: TextStyle(fontSize: 16),),
-            Text(time, style: TextStyle(fontSize: 16),)
-          ],
+              Padding(padding: EdgeInsets.only(top: 20)),
+              Text(
+                pendingText,
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+              Padding(padding: EdgeInsets.only(bottom: 40)),
+              Text(sender, style: TextStyle(fontSize: 16), ),
+              Padding(padding: EdgeInsets.only(bottom: 10)),
+              Text(content, style: TextStyle(fontSize: 16),),
+              Padding(padding: EdgeInsets.only(bottom: 10)),
+              Text(time, style: TextStyle(fontSize: 16),)
+            ],
+          ),
         ),
-      ),
+      )
     );
   }
 }
